@@ -13,6 +13,144 @@
                 "FAIL"))
 )
 
+;;; 4. BOOLEAN LOGIC
+
+(FORMAT t "~%~a~%" "========== BOOLEAN LOGIC TESTS ==========")
+
+;; 4.a: boolean-xor - Tests (4 total)
+
+(run-test "boolean-xor - First Operand True"    ; Function and case
+          '(T NIL)                              ; Input
+          T                                     ; Expected
+          (boolean-xor T NIL))                  ; Actual
+
+(run-test "boolean-xor - Second Operand True"
+          '(NIL T)
+          T
+          (boolean-xor NIL T))
+
+(run-test "boolean-xor - Both Operands True"
+          '(T T)
+          NIL
+          (boolean-xor T T))
+
+(run-test "boolean-xor - Both Operands False"
+          '(NIL NIL)
+          NIL
+          (boolean-xor NIL NIL))
+
+;; 4.b: boolean-implies - Tests (4 total)
+(run-test "boolean-implies - Both True"
+          '(T T)
+          T
+          (boolean-implies T T))
+
+(run-test "boolean-implies - True Implies False"
+          '(T NIL)
+          NIL
+          (boolean-implies T NIL))
+
+(run-test "boolean-implies - False Implies True"
+          '(NIL T)
+          T
+          (boolean-implies NIL T))
+
+(run-test "boolean-implies - Both False"
+          '(NIL NIL)
+          T
+          (boolean-implies NIL NIL))
+
+;; 4.c: boolean-iff - Tests (4 total)
+
+(run-test "boolean-iff - Both True"
+          '(T T)
+          T
+          (boolean-iff T T))
+
+(run-test "boolean-iff - Both False"
+          '(NIL NIL)
+          T
+          (boolean-iff NIL NIL))
+
+(run-test "boolean-iff - First True, Second False"
+          '(T NIL)
+          NIL
+          (boolean-iff T NIL))
+
+(run-test "boolean-iff - First False, Second True"
+          '(NIL T)
+          NIL
+          (boolean-iff NIL T))
+
+;; 4.d: boolean-eval - Tests (5 total)
+
+(run-test "boolean-eval - True Constant"
+          T
+          T
+          (boolean-eval T))
+
+(run-test "boolean-eval - False Constant"
+          NIL
+          NIL
+          (boolean-eval NIL))
+
+(run-test "boolean-eval - NOT and AND"
+          '(NOT (AND T NIL))
+          T
+          (boolean-eval '(NOT (AND T NIL))))
+
+(run-test "boolean-eval - XOR with Nested OR"
+          '(XOR T (OR NIL T))
+          NIL
+          (boolean-eval '(XOR (OR NIL T) T)))
+
+(run-test "boolean-eval - IMPLIES with Nested IFF"
+          '(IMPLIES (IFF NIL NIL) (NOT T))
+          NIL
+          (boolean-eval '(IMPLIES (IFF NIL NIL) (NOT T))))
+
+;; 4.e: boolean-simplify - Tests (8 total)
+(run-test "boolean-simplify - Variable"
+          'A
+          'A
+          (boolean-simplify 'A))
+
+(run-test "boolean-simplify - Nested Identities"
+          '(AND (OR A NIL) T)
+          'A
+          (boolean-simplify '(AND (OR A NIL) T)))
+
+(run-test "boolean-simplify - Double NOT"
+          '(NOT (NOT (AND T NIL)))
+          'NIL
+          (boolean-simplify '(NOT (NOT (AND T NIL)))))
+
+(run-test "boolean-simplify - AND with Matching Operands"
+          '(AND (NOT A) (NOT A))
+          '(NOT A)
+          (boolean-simplify '(AND (NOT A) (NOT A))))
+
+(run-test "boolean-simplify - OR with Matching Operands"
+          '(OR A A)
+          'A
+          (boolean-simplify '(OR A A)))
+
+(run-test "boolean-simplify - OR with True"
+          '(OR T A)
+          T
+          (boolean-simplify '(OR T A)))
+
+(run-test "boolean-simplify - AND with False"
+          '(AND A NIL)
+          NIL
+          (boolean-simplify '(AND A NIL)))
+
+(run-test "boolean-simplify - Preserve Other Operands"
+          '(IFF (XOR (AND T A) B) (IMPLIES C (OR NIL D)))
+          '(IFF (XOR A B) (IMPLIES C D))
+          (boolean-simplify '(IFF (XOR (AND T A) B) (IMPLIES C (OR NIL D)))))
+
+          
 ;;; 5. RECURSIVE LIST PROCESSING (20 total tests)
 
 (FORMAT t "~%~a~%" "========== RECURSIVE LIST PROCESSING TESTS ==========")

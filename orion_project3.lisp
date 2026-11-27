@@ -1,3 +1,80 @@
+;;; 4. BOOLEAN LOGIC
+
+;; 4.a: boolean-xor
+(DEFUN boolean-xor (a b)
+    ;; Returns T when exactly one operand is true.
+    (NOT (EQUAL a b))
+)
+
+;; 4.b: boolean-implies
+(DEFUN boolean-implies (a b)
+    ;; Returns NIL only when a is true and b is false.
+    (OR (NOT a) b)
+)
+
+;; 4.c: boolean-iff
+(DEFUN boolean-iff (a b)
+    ;; Returns T when both operands are the same Boolean value
+    (EQUAL a b)
+)
+
+;; 4.d: boolean-eval
+(DEFUN boolean-eval (expr)
+    ;; Evaluates a Boolean expression and returns T or NIL.
+    (COND
+      ; Base Case: A Boolean constant already has its final value
+      ((OR (EQUAL expr T) (EQUAL expr NIL)) expr)
+      (T
+      (LET ((operator (FIRST expr))
+        (left (boolean-eval (SECOND expr))))
+        (COND
+          ; NOT has one operand.
+          ((EQUAL operator 'NOT) (NOT left))
+          (T
+           ; The remaining operators have two operands.
+           (LET ((right (boolean-eval (THIRD expr))))
+             (COND
+               ((EQUAL operator 'AND) (AND left right))
+               ((EQUAL operator 'OR) (OR left right))
+               ((EQUAL operator 'XOR) (boolean-xor left right))
+               ((EQUAL operator 'IMPLIES) (boolean-implies left right))
+               ((EQUAL operator 'IFF) (boolean-iff left right))))))))))
+
+;; 4.e: boolean-simplify
+;; 4.e: boolean-simplify
+(DEFUN boolean-simplify (expr)
+    ;; Simplifies the operands before applying the outer operator's rule.
+    (LABELS ((boolean-leaf-p (item)
+               (OR (EQUAL item NIL)
+                   (EQUAL (list-flatten (LIST item)) (LIST item)))))
+      (IF (boolean-leaf-p expr)
+          expr
+          (LET ((operator (FIRST expr))
+                (left (boolean-simplify (SECOND expr))))
+            (IF (EQUAL operator 'NOT)
+                ; Two consecutive NOT operators cancel each other.
+                (IF (AND (NOT (boolean-leaf-p left))
+                         (EQUAL (FIRST left) 'NOT))
+                    (SECOND left)
+                    (LIST operator left))
+                (LET ((right (boolean-simplify (THIRD expr))))
+                  (COND
+                    ((EQUAL operator 'AND)
+                     (COND
+                       ((OR (EQUAL left NIL) (EQUAL right NIL)) NIL)
+                       ((EQUAL left T) right)
+                       ((OR (EQUAL right T) (EQUAL left right)) left)
+                       (T (LIST operator left right))))
+                    ((EQUAL operator 'OR)
+                     (COND
+                       ((OR (EQUAL left T) (EQUAL right T)) T)
+                       ((EQUAL left NIL) right)
+                       ((OR (EQUAL right NIL) (EQUAL left right)) left)
+                       (T (LIST operator left right))))
+                    ; Keep the other operators with their simplified operands.
+                    (T (LIST operator left right))))))))
+)
+
 ;;; 5. RECURSIVE LIST PROCESSING
 
 ;; 5.a: list-reverse
